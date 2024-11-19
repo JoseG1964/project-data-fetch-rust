@@ -7,7 +7,7 @@ trait Pricing {
     fn save_to_file(&self, price: f64) -> io::Result<()>{
         let filename = format!("{}.txt", self.get_name());
         let mut file = File::create(&filename)?;
-        writeln!(file, "Latest price for {}: {}", self.get_name(), price)?;
+        writeln!(file, "Latest price for {}: ${} USD", self.get_name(), price)?;
         Ok(())
     }
     fn get_name(&self) -> &str;
@@ -91,6 +91,9 @@ fn main() {
             match amount.fetch_price(){
                 Ok(price) => {
                     println!("Current price for {}: ${} USD", amount.get_name(), price);
+                    if let Err(e) = amount.save_to_file(price) {
+                        eprintln!("Failed to save price for {}: {}", amount.get_name(), e);
+                    }
                 }
                 Err(err) => eprintln!("Failed to fetch price for {}: {}", amount.get_name(), err),
             }
